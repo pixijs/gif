@@ -1,0 +1,29 @@
+name: Node.js CI
+on:
+  push:
+    branches: [ '**' ]
+    tags: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+jobs:
+  build:
+    env:
+      NODE_ENV: 'production'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+    - name: Install npm
+      run: npm install -g npm@7
+    - name: Install dependencies
+      run: npm ci
+    - name: Build
+      run: npm run build
+    - name: Run Unit Tests
+      uses: GabrielBB/xvfb-action@v1.0
+      with:
+        run: npm run coverage
+
