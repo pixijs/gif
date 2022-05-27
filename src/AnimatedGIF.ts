@@ -204,7 +204,7 @@ class AnimatedGIF extends Sprite
 
             if (disposalType === 2)
             {
-                context.clearRect(0, 0, width, height);
+                context.clearRect(left, top, width, height);
             }
 
             frames.push({
