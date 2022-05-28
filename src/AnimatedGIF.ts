@@ -202,7 +202,7 @@ class AnimatedGIF extends Sprite
             context.drawImage(patchCanvas, left, top);
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-            if (disposalType === 2)
+            if (disposalType === 2 || disposalType === 3)
             {
                 context.clearRect(left, top, width, height);
             }
