@@ -4,7 +4,6 @@ import { settings } from '@pixi/settings';
 import { SCALE_MODES } from '@pixi/constants';
 import { Ticker, UPDATE_PRIORITY } from '@pixi/ticker';
 import { parseGIF, decompressFrames } from 'gifuct-js';
-import type { ParsedGif } from 'gifuct-js';
 
 /**
  * Frame object.
@@ -17,10 +16,11 @@ interface FrameObject {
     /** How long this frame lasts, in milliseconds */
     end: number;
 }
+
 /**
- * Options for the AnimatedGIF constructor.
+ * Default options for all AnimatedGIF objects.
  */
-interface AnimatedGIFOptions {
+interface DefaultOptions {
     /** Whether to start playing right away */
     autoPlay: boolean;
     /** Scale Mode to use for the texture */
@@ -42,6 +42,16 @@ interface AnimatedGIFOptions {
 }
 
 /**
+ * Options for the AnimatedGIF constructor.
+ */
+interface AnimatedGIFOptions extends Partial<DefaultOptions> {
+    /** Width of the GIF image */
+    width: number;
+    /** Height of the GIF image */
+    height: number;
+}
+
+/**
  * Runtime object to play animated GIFs. This object is similar to an AnimatedSprite.
  * It support playback (seek, play, stop) as well as animation speed and looping.
  * @memberof PIXI.gif
@@ -60,7 +70,7 @@ class AnimatedGIF extends Sprite
      * @property [onLoop=null] {function} - The loop callback, optional.
      * @property [onFrameChange=null] {function} - The frame callback, optional.
      */
-    public static defaultOptions: AnimatedGIFOptions = {
+    public static defaultOptions: DefaultOptions = {
         scaleMode: SCALE_MODES.LINEAR,
         fps: Ticker.shared.FPS,
         loop: true,
@@ -146,9 +156,6 @@ class AnimatedGIF extends Sprite
     /** Current playback position in milliseconds. */
     private _currentTime: number;
 
-    /** Gif meta data. */
-    private _gif: ParsedGif;
-
     /**
      * Create an animated GIF animation from a GIF image's ArrayBuffer. The easiest way to get
      * the buffer is to use the Loader.
@@ -163,7 +170,7 @@ class AnimatedGIF extends Sprite
      * @param options - Options to use.
      * @returns
      */
-    static fromBuffer(buffer: ArrayBuffer, options?: Partial<AnimatedGIFOptions>): AnimatedGIF
+    static fromBuffer(buffer: ArrayBuffer, options?: Partial<DefaultOptions>): AnimatedGIF
     {
         if (!buffer || buffer.byteLength === 0)
         {
@@ -223,26 +230,30 @@ class AnimatedGIF extends Sprite
         canvas.width = canvas.height = 0;
         patchCanvas.width = patchCanvas.height = 0;
 
-        return new AnimatedGIF(frames, gif, options);
+        return new AnimatedGIF(frames, Object.assign({
+            width: gif.lsd.width,
+            height: gif.lsd.height
+        }, options));
     }
 
     /**
      * @param frames - Data of the GIF image.
-     * @param gif - Data of the ParsedGif.
      * @param options - Options for the AnimatedGIF
      * @param [options.scaleMode=SCALE_MODES.LINEAR] - How to scale the image.
      * @param [options.loop=true] - Whether to loop the animation.
      * @param [options.animationSpeed=1] - The speed that the animation will play at.
+     * @param [options.width=number] - Width of the GIF image.
+     * @param [options.height=number] - Height of the GIF image.
      * @param [options.autoPlay=true] - Whether to start playing the animation right away.
      * @param [options.autoUpdate=true] - Whether to use PIXI.Ticker.shared to auto update animation time.
      * @param [options.onComplete=null] - Function to call when the animation finishes playing.
      * @param [options.onFrameChange=null] - Function to call when the frame changes.
      * @param [options.onLoop=null] - Function to call when the animation loops.
      */
-    constructor(frames: FrameObject[], gif: ParsedGif, options?: Partial<AnimatedGIFOptions>)
+    constructor(frames: FrameObject[], options?: AnimatedGIFOptions)
     {
         // Get the options, apply defaults
-        const { scaleMode, ...rest } = Object.assign({},
+        const { scaleMode, width, height, ...rest } = Object.assign({},
             AnimatedGIF.defaultOptions,
             options
         );
@@ -251,8 +262,8 @@ class AnimatedGIF extends Sprite
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
 
-        canvas.width = gif.lsd.width;
-        canvas.height = gif.lsd.height;
+        canvas.width = width;
+        canvas.height = height;
 
         super(Texture.from(canvas, { scaleMode }));
 
@@ -262,7 +273,6 @@ class AnimatedGIF extends Sprite
         this._playing = false;
         this._currentTime = 0;
         this._isConnectedToTicker = false;
-        this._gif = gif;
         Object.assign(this, rest);
 
         // Draw the first frame
@@ -494,7 +504,6 @@ class AnimatedGIF extends Sprite
         super.destroy(true);
         this._context = null;
         this._frames = null;
-        this._gif = null;
         this.onComplete = null;
         this.onFrameChange = null;
         this.onLoop = null;
@@ -509,12 +518,14 @@ class AnimatedGIF extends Sprite
      */
     clone(): AnimatedGIF
     {
-        return new AnimatedGIF([...this._frames], this._gif, {
+        return new AnimatedGIF([...this._frames], {
             autoUpdate: this._autoUpdate,
             loop: this.loop,
             autoPlay: this.autoPlay,
             scaleMode: this.texture.baseTexture.scaleMode,
             animationSpeed: this.animationSpeed,
+            width: this._context.canvas.width,
+            height: this._context.canvas.height,
             onComplete: this.onComplete,
             onFrameChange: this.onFrameChange,
             onLoop: this.onLoop,
