@@ -170,7 +170,7 @@ class AnimatedGIF extends Sprite
      * @param options - Options to use.
      * @returns
      */
-    static fromBuffer(buffer: ArrayBuffer, options?: Partial<DefaultOptions>): AnimatedGIF
+    static fromBuffer(buffer: ArrayBuffer, options?: Partial<Omit<AnimatedGIFOptions, 'width'|'height'>>): AnimatedGIF
     {
         if (!buffer || buffer.byteLength === 0)
         {
