@@ -191,7 +191,7 @@ class AnimatedGIF extends Sprite
 
             for (const frame of gif.frames)
             {
-                currentGce = frame.gce !== undefined ? frame.gce : currentGce;
+                currentGce = frame.gce ?? currentGce;
 
                 // fix loosing graphic control extension for same frames
                 if ('image' in frame && !('gce' in frame))
