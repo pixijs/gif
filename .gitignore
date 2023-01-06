@@ -2,9 +2,5 @@ node_modules
 /dist
 /lib
 /docs
-/coverage
-/deploy
-.rpt2_cache
 .DS_Store
-.nyc_output
 /example.api.json*
