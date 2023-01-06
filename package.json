@@ -2,7 +2,6 @@
   "name": "@pixi/gif",
   "version": "2.0.1",
   "description": "Animated GIF Runtime for PixiJS",
-  "source": "./src/index.ts",
   "main": "./lib/index.js",
   "module": "./lib/index.mjs",
   "types": "./lib/index.d.ts",
@@ -72,9 +71,8 @@
       "scripts",
       "engines",
       "pre-commit",
-      "devDependencies",
-      "eslintConfig",
-      "source"
+      "extensionConfig",
+      "devDependencies"
     ]
   },
   "devDependencies": {
