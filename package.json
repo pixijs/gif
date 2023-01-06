@@ -27,6 +27,7 @@
     "types": "extension-scripts types",
     "build": "extension-scripts build",
     "docs": "extension-scripts docs",
+    "deploy": "extension-scripts deploy",
     "release": "extension-scripts release",
     "test": "extension-scripts test",
     "prepack": "clean-package",
