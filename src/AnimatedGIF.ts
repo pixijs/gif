@@ -243,7 +243,8 @@ class AnimatedGIF extends Sprite
             if (disposalType === 2)
             {
                 context.clearRect(0, 0, canvas.width, canvas.height);
-            } else if (disposalType === 3)
+            }
+            else if (disposalType === 3)
             {
                 context.putImageData(previousFrame as ImageData, 0, 0);
             }
